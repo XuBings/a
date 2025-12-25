@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平衡方程計算器 - ∑Fx=0, ∑Fy=0, ΣM=0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        header {
+            background: linear-gradient(to right, #2c3e50, #4a6491);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px;
+        }
+        
+        .input-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            border-right: 1px solid #e0e0e0;
+        }
+        
+        .result-section {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-reset {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .btn-reset:hover {
+            background-color: #d35400;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+        
+        .forces-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .force-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .force-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .force-title {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        
+        .remove-force {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        
+        .remove-force:hover {
+            background-color: #c0392b;
+            transform: scale(1.1);
+        }
+        
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        input, select {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .pivot-input {
+            background-color: #f1f8ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+        
+        .equations {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .equation {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            border-left: 5px solid #9b59b6;
+            font-family: 'Courier New', monospace;
+            color: #2c3e50;
+        }
+        
+        .results {
+            background-color: #f1f8ff;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px dashed #ccc;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        
+        .result-value {
+            font-weight: 700;
+            color: #27ae60;
+            font-size: 1.4rem;
+        }
+        
+        .instructions {
+            background-color: #fff8e1;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            border-left: 5px solid #f39c12;
+        }
+        
+        .instructions h3 {
+            color: #e67e22;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .input-section {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>平衡方程計算器</h1>
+            <p class="subtitle">輸入作用於物體上的力，系統將自動應用平衡方程 (∑Fx=0, ∑Fy=0, ΣM=0) 來計算反作用力。支援多個力、不同角度和作用點。</p>
+        </header>
+        
+        <div class="content">
+            <div class="input-section">
+                <h2 class="section-title">輸入作用力</h2>
+                
+                <div class="control-buttons">
+                    <button class="btn-primary" id="addForce">+ 新增作用力</button>
+                    <button class="btn-success" id="calculate">計算平衡</button>
+                    <button class="btn-reset" id="resetAll">重置所有</button>
+                </div>
+                
+                <div class="forces-container" id="forcesContainer">
+                    <!-- 作用力卡片將在這裡動態生成 -->
+                </div>
+                
+                <div class="pivot-input">
+                    <h3>支點（力矩參考點）</h3>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="pivotX">X 座標 (m)</label>
+                            <input type="number" id="pivotX" value="0" step="0.1">
+                        </div>
+                        <div class="input-field">
+                            <label for="pivotY">Y 座標 (m)</label>
+                            <input type="number" id="pivotY" value="0" step="0.1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-section">
+                <h2 class="section-title">平衡方程與結果</h2>
+                
+                <div class="equations">
+                    <h3>平衡方程</h3>
+                    <div class="equation" id="equationFx">∑Fx = 0: 等待計算...</div>
+                    <div class="equation" id="equationFy">∑Fy = 0: 等待計算...</div>
+                    <div class="equation" id="equationM">∑M = 0: 等待計算...</div>
+                </div>
+                
+                <div class="results">
+                    <h3>計算結果</h3>
+                    <div class="result-item">
+                        <span class="result-label">水平反力 Rx</span>
+                        <span class="result-value" id="resultRx">0.00 N</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">垂直反力 Ry</span>
+                        <span class="result-value" id="resultRy">0.00 N</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">系統狀態</span>
+                        <span class="result-value" id="systemStatus">等待計算</span>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3>使用說明</h3>
+                    <ol>
+                        <li>點擊「新增作用力」按鈕添加作用力</li>
+                        <li>為每個力輸入：大小(N)、角度(°)、作用點座標(m)</li>
+                        <li>設定支點座標（計算力矩的參考點）</li>
+                        <li>點擊「計算平衡」求解反作用力</li>
+                        <li>系統將顯示平衡方程和計算結果</li>
+                    </ol>
+                    <p><strong>注意：</strong>角度0°表示水平向右，90°表示垂直向上。逆時針方向為正。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>靜力學平衡計算器 | ∑Fx=0, ∑Fy=0, ΣM=0 | 工程力學互動系統</p>
+    </footer>
+
+    <script>
+        // 初始力計數器
+        let forceCount = 0;
+        
+        // DOM 元素
+        const forcesContainer = document.getElementById('forcesContainer');
+        const addForceBtn = document.getElementById('addForce');
+        const calculateBtn = document.getElementById('calculate');
+        const resetAllBtn = document.getElementById('resetAll');
+        const pivotXInput = document.getElementById('pivotX');
+        const pivotYInput = document.getElementById('pivotY');
+        
+        // 結果顯示元素
+        const equationFxEl = document.getElementById('equationFx');
+        const equationFyEl = document.getElementById('equationFy');
+        const equationMEl = document.getElementById('equationM');
+        const resultRxEl = document.getElementById('resultRx');
+        const resultRyEl = document.getElementById('resultRy');
+        const systemStatusEl = document.getElementById('systemStatus');
+        
+        // 初始化 - 添加第一個力
+        document.addEventListener('DOMContentLoaded', function() {
+            addNewForce();
+        });
+        
+        // 添加新作用力
+        addForceBtn.addEventListener('click', addNewForce);
+        
+        // 計算平衡
+        calculateBtn.addEventListener('click', calculateEquilibrium);
+        
+        // 重置所有
+        resetAllBtn.addEventListener('click', resetAll);
+        
+        // 創建新作用力卡片
+        function addNewForce() {
+            forceCount++;
+            const forceId = `force${forceCount}`;
+            
+            const forceCard = document.createElement('div');
+            forceCard.className = 'force-card';
+            forceCard.id = `card-${forceId}`;
+            
+            forceCard.innerHTML = `
+                <div class="force-header">
+                    <div class="force-title">作用力 F${forceCount}</div>
+                    <button class="remove-force" data-force="${forceId}">×</button>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="${forceId}-magnitude">大小 (N)</label>
+                        <input type="number" id="${forceId}-magnitude" value="10" step="0.1" min="0">
+                    </div>
+                    <div class="input-field">
+                        <label for="${forceId}-angle">角度 (°)</label>
+                        <input type="number" id="${forceId}-angle" value="30" step="1" min="0" max="360">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="${forceId}-x">作用點 X (m)</label>
+                        <input type="number" id="${forceId}-x" value="${forceCount}" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label for="${forceId}-y">作用點 Y (m)</label>
+                        <input type="number" id="${forceId}-y" value="0" step="0.1">
+                    </div>
+                </div>
+            `;
+            
+            forcesContainer.appendChild(forceCard);
+            
+            // 添加移除按鈕事件監聽器
+            const removeBtn = forceCard.querySelector('.remove-force');
+            removeBtn.addEventListener('click', function() {
+                if (forceCount > 1) {
+                    forceCard.remove();
+                    forceCount--;
+                    updateForceTitles();
+                } else {
+                    alert('至少需要一個作用力！');
+                }
+            });
+        }
+        
+        // 更新所有力的標題
+        function updateForceTitles() {
+            const forceCards = document.querySelectorAll('.force-card');
+            forceCards.forEach((card, index) => {
+                const title = card.querySelector('.force-title');
+                title.textContent = `作用力 F${index + 1}`;
+            });
+        }
+        
+        // 計算平衡
+        function calculateEquilibrium() {
+            // 獲取支點座標
+            const pivotX = parseFloat(pivotXInput.value) || 0;
+            const pivotY = parseFloat(pivotYInput.value) || 0;
+            
+            // 初始化總和
+            let sumFx = 0;
+            let sumFy = 0;
+            let sumM = 0;
+            
+            // 獲取所有作用力
+            const forceCards = document.querySelectorAll('.force-card');
+            
+            // 檢查是否有作用力
+            if (forceCards.length === 0) {
+                alert('請至少添加一個作用力！');
+                return;
+            }
+            
+            let forcesData = [];
+            let equationsFx = [];
+            let equationsFy = [];
+            let equationsM = [];
+            
+            // 計算每個力的分量和力矩
+            forceCards.forEach((card, index) => {
+                const forceNum = index + 1;
+                
+                // 獲取輸入值
+                const magnitude = parseFloat(card.querySelector(`#force${forceNum}-magnitude`).value) || 0;
+                const angle = parseFloat(card.querySelector(`#force${forceNum}-angle`).value) || 0;
+                const x = parseFloat(card.querySelector(`#force${forceNum}-x`).value) || 0;
+                const y = parseFloat(card.querySelector(`#force${forceNum}-y`).value) || 0;
+                
+                // 將角度轉換為弧度
+                const angleRad = angle * Math.PI / 180;
+                
+                // 計算力分量
+                const fx = magnitude * Math.cos(angleRad);
+                const fy = magnitude * Math.sin(angleRad);
+                
+                // 計算力臂（相對於支點）
+                const dx = x - pivotX;
+                const dy = y - pivotY;
+                
+                // 計算力矩（逆時針為正）
+                // M = Fx * dy - Fy * dx
+                const moment = fx * dy - fy * dx;
+                
+                // 添加到總和
+                sumFx += fx;
+                sumFy += fy;
+                sumM += moment;
+                
+                // 儲存力數據
+                forcesData.push({
+                    magnitude, angle, x, y, fx, fy, moment
+                });
+                
+                // 構建方程字符串
+                const fxSign = fx >= 0 ? '+' : '';
+                const fySign = fy >= 0 ? '+' : '';
+                const momentSign = moment >= 0 ? '+' : '';
+                
+                equationsFx.push(`${fxSign}${fx.toFixed(2)}`);
+                equationsFy.push(`${fySign}${fy.toFixed(2)}`);
+                equationsM.push(`${momentSign}${moment.toFixed(2)}`);
+            });
+            
+            // 計算反作用力（假設在支點處）
+            // 平衡方程: ∑Fx + Rx = 0, ∑Fy + Ry = 0, ∑M = 0
+            const Rx = -sumFx;
+            const Ry = -sumFy;
+            
+            // 檢查力矩平衡
+            const isMomentBalanced = Math.abs(sumM) < 0.01;
+            
+            // 顯示平衡方程
+            equationFxEl.innerHTML = `∑Fx = 0: ${equationsFx.join(' ')} + Rx = 0`;
+            equationFyEl.innerHTML = `∑Fy = 0: ${equationsFy.join(' ')} + Ry = 0`;
+            equationMEl.innerHTML = `∑M = 0: ${equationsM.join(' ')} = ${sumM.toFixed(2)} N·m`;
+            
+            // 顯示計算結果
+            resultRxEl.textContent = `${Rx.toFixed(2)} N`;
+            resultRyEl.textContent = `${Ry.toFixed(2)} N`;
+            
+            // 更新系統狀態
+            if (isMomentBalanced) {
+                systemStatusEl.textContent = "系統平衡 ✓";
+                systemStatusEl.style.color = "#27ae60";
+            } else {
+                systemStatusEl.textContent = "力矩不平衡！";
+                systemStatusEl.style.color = "#e74c3c";
+            }
+            
+            // 高亮顯示方程
+            highlightEquations();
+        }
+        
+        // 高亮顯示方程
+        function highlightEquations() {
+            const equations = [equationFxEl, equationFyEl, equationMEl];
+            equations.forEach(eq => {
+                eq.style.animation = 'none';
+                setTimeout(() => {
+                    eq.style.animation = 'highlight 0.5s ease';
+                }, 10);
+            });
+        }
+        
+        // 添加動畫關鍵幀
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes highlight {
+                0% { background-color: white; }
+                50% { background-color: #e3f2fd; }
+                100% { background-color: white; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 重置所有輸入
+        function resetAll() {
+            // 移除所有作用力卡片
+            forcesContainer.innerHTML = '';
+            forceCount = 0;
+            
+            // 重置支點
+            pivotXInput.value = 0;
+            pivotYInput.value = 0;
+            
+            // 重置結果顯示
+            equationFxEl.textContent = "∑Fx = 0: 等待計算...";
+            equationFyEl.textContent = "∑Fy = 0: 等待計算...";
+            equationMEl.textContent = "∑M = 0: 等待計算...";
+            resultRxEl.textContent = "0.00 N";
+            resultRyEl.textContent = "0.00 N";
+            systemStatusEl.textContent = "等待計算";
+            systemStatusEl.style.color = "#27ae60";
+            
+            // 添加一個新的作用力
+            addNewForce();
+        }
+    </script>
+</body>
+</html>
