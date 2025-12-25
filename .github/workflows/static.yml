@@ -1,43 +1,992 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equilibrium Calculator | ∑Fx=0, ∑Fy=0, ΣM=0</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #f8f9fa;
+            --dark: #2c3e50;
+            --gray: #6c757d;
+            --border: #e3e6f0;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --hover-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+        }
+        
+        .header-badges {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: fit-content;
+        }
+        
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .card-title i {
+            color: var(--secondary);
+        }
+        
+        /* Control Buttons */
+        .control-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+        
+        /* Force Cards */
+        .forces-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .force-card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .force-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .force-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        
+        .force-title {
+            font-weight: 700;
+            color: var(--dark);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .force-title i {
+            color: var(--secondary);
+        }
+        
+        .remove-force {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .remove-force:hover {
+            background: #c0392b;
+            transform: scale(1.1);
+        }
+        
+        /* Input Fields */
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        @media (max-width: 768px) {
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .input-label i {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border 0.3s;
+            background: white;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        
+        /* Pivot Input */
+        .pivot-input {
+            background: linear-gradient(to right, #f8f9ff, #f0f4ff);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px dashed var(--border);
+        }
+        
+        .pivot-input h3 {
+            color: var(--secondary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        /* Equations Display */
+        .equations {
+            margin-bottom: 2rem;
+        }
+        
+        .equation {
+            background: linear-gradient(to right, #f8f9ff, #f0f4ff);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            border-left: 5px solid var(--secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .equation:hover {
+            transform: translateX(5px);
+        }
+        
+        .equation-title {
+            color: var(--secondary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .equation-content {
+            color: var(--dark);
+            font-weight: 500;
+        }
+        
+        /* Results */
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (max-width: 576px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .result-box {
+            background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .result-box:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .result-label {
+            color: var(--gray);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .result-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* Status Box */
+        .status-box {
+            background: linear-gradient(to right, #f0fff4, #f8fff0);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            border: 2px solid #2ecc71;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .status-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .status-icon {
+            background: #2ecc71;
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .status-text h4 {
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .status-text p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Instructions */
+        .instructions {
+            background: linear-gradient(to right, #fff8e1, #fff9e6);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            border-left: 5px solid var(--warning);
+        }
+        
+        .instructions h3 {
+            color: var(--warning);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .instructions ol {
+            padding-left: 1.5rem;
+        }
+        
+        .instructions li {
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+        }
+        
+        .instructions strong {
+            color: var(--primary);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: white; }
+            50% { background-color: rgba(67, 97, 238, 0.1); }
+            100% { background-color: white; }
+        }
+        
+        .highlight {
+            animation: highlight 1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-balance-scale"></i> Equilibrium Equations Calculator</h1>
+            <p class="subtitle">Solve static equilibrium problems using ∑Fx=0, ∑Fy=0, ΣM=0. Add forces, set pivot points, and calculate reaction forces instantly.</p>
+            
+            <div class="header-badges">
+                <div class="badge"><i class="fas fa-calculator"></i> ∑Fx = 0</div>
+                <div class="badge"><i class="fas fa-calculator"></i> ∑Fy = 0</div>
+                <div class="badge"><i class="fas fa-calculator"></i> ΣM = 0</div>
+                <div class="badge"><i class="fas fa-ruler-combined"></i> Force Analysis</div>
+                <div class="badge"><i class="fas fa-university"></i> Engineering Statics</div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Input Section -->
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-mouse-pointer"></i> Input Forces</h2>
+                
+                <div class="control-buttons">
+                    <button class="btn btn-primary" id="addForce">
+                        <i class="fas fa-plus-circle"></i> Add Force
+                    </button>
+                    <button class="btn btn-success" id="calculate">
+                        <i class="fas fa-calculator"></i> Calculate Equilibrium
+                    </button>
+                    <button class="btn btn-warning" id="resetAll">
+                        <i class="fas fa-redo"></i> Reset All
+                    </button>
+                </div>
+                
+                <div class="forces-container" id="forcesContainer">
+                    <!-- Force cards will be dynamically added here -->
+                </div>
+                
+                <div class="pivot-input">
+                    <h3><i class="fas fa-crosshairs"></i> Pivot Point (Moment Reference)</h3>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label class="input-label" for="pivotX">
+                                <i class="fas fa-arrows-alt-h"></i> X Coordinate (m)
+                            </label>
+                            <input type="number" id="pivotX" value="0" step="0.1">
+                        </div>
+                        <div class="input-field">
+                            <label class="input-label" for="pivotY">
+                                <i class="fas fa-arrows-alt-v"></i> Y Coordinate (m)
+                            </label>
+                            <input type="number" id="pivotY" value="0" step="0.1">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-chart-line"></i> Results & Equations</h2>
+                
+                <div class="equations">
+                    <div class="equation" id="equationFx">
+                        <div class="equation-title">
+                            <i class="fas fa-arrows-alt-h"></i> Sum of Horizontal Forces
+                        </div>
+                        <div class="equation-content">∑Fx = 0: Waiting for calculation...</div>
+                    </div>
+                    
+                    <div class="equation" id="equationFy">
+                        <div class="equation-title">
+                            <i class="fas fa-arrows-alt-v"></i> Sum of Vertical Forces
+                        </div>
+                        <div class="equation-content">∑Fy = 0: Waiting for calculation...</div>
+                    </div>
+                    
+                    <div class="equation" id="equationM">
+                        <div class="equation-title">
+                            <i class="fas fa-sync-alt"></i> Sum of Moments
+                        </div>
+                        <div class="equation-content">∑M = 0: Waiting for calculation...</div>
+                    </div>
+                </div>
+                
+                <div class="results-grid">
+                    <div class="result-box">
+                        <div class="result-label">
+                            <i class="fas fa-arrow-right"></i> Horizontal Reaction
+                        </div>
+                        <div class="result-value" id="resultRx">0.00 N</div>
+                    </div>
+                    
+                    <div class="result-box">
+                        <div class="result-label">
+                            <i class="fas fa-arrow-up"></i> Vertical Reaction
+                        </div>
+                        <div class="result-value" id="resultRy">0.00 N</div>
+                    </div>
+                </div>
+                
+                <div class="status-box" id="statusBox">
+                    <div class="status-content">
+                        <div class="status-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div class="status-text">
+                            <h4 id="systemStatus">Waiting for Calculation</h4>
+                            <p id="systemMessage">Add forces and click "Calculate Equilibrium"</p>
+                        </div>
+                    </div>
+                    <div id="balanceIndicator" style="font-size: 2rem; color: #ccc;">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3><i class="fas fa-info-circle"></i> How to Use</h3>
+                    <ol>
+                        <li>Click <strong>"Add Force"</strong> to create force inputs</li>
+                        <li>For each force, enter: <strong>Magnitude (N)</strong>, <strong>Angle (°)</strong>, and <strong>Application Point (m)</strong></li>
+                        <li>Set the <strong>Pivot Point</strong> coordinates for moment calculations</li>
+                        <li>Click <strong>"Calculate Equilibrium"</strong> to solve</li>
+                        <li>View the <strong>equilibrium equations</strong> and <strong>reaction forces</strong></li>
+                    </ol>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--gray);">
+                        <i class="fas fa-lightbulb"></i> <strong>Tip:</strong> Angle 0° points right, 90° points up. Counterclockwise moments are positive.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Engineering Statics Calculator | ∑Fx=0, ∑Fy=0, ΣM=0 | Interactive Learning Tool</p>
+            <p style="margin-top: 0.5rem;">© 2023 Statics Equilibrium Calculator | For Educational Use</p>
+        </footer>
+    </div>
 
-on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
-jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: '.'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    <script>
+        // Initial force counter
+        let forceCount = 0;
+        
+        // DOM elements
+        const forcesContainer = document.getElementById('forcesContainer');
+        const addForceBtn = document.getElementById('addForce');
+        const calculateBtn = document.getElementById('calculate');
+        const resetAllBtn = document.getElementById('resetAll');
+        const pivotXInput = document.getElementById('pivotX');
+        const pivotYInput = document.getElementById('pivotY');
+        
+        // Result display elements
+        const equationFxEl = document.getElementById('equationFx');
+        const equationFyEl = document.getElementById('equationFy');
+        const equationMEl = document.getElementById('equationM');
+        const resultRxEl = document.getElementById('resultRx');
+        const resultRyEl = document.getElementById('resultRy');
+        const systemStatusEl = document.getElementById('systemStatus');
+        const systemMessageEl = document.getElementById('systemMessage');
+        const balanceIndicator = document.getElementById('balanceIndicator');
+        const statusBox = document.getElementById('statusBox');
+        
+        // Initialize - add first force
+        document.addEventListener('DOMContentLoaded', function() {
+            addNewForce();
+        });
+        
+        // Add new force
+        addForceBtn.addEventListener('click', addNewForce);
+        
+        // Calculate equilibrium
+        calculateBtn.addEventListener('click', calculateEquilibrium);
+        
+        // Reset all
+        resetAllBtn.addEventListener('click', resetAll);
+        
+        // Create new force card
+        function addNewForce() {
+            forceCount++;
+            const forceId = `force${forceCount}`;
+            
+            const forceCard = document.createElement('div');
+            forceCard.className = 'force-card fade-in';
+            forceCard.id = `card-${forceId}`;
+            
+            // Create a random color for the force icon
+            const colors = ['#4361ee', '#7209b7', '#2ecc71', '#e74c3c', '#f39c12'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            forceCard.innerHTML = `
+                <div class="force-header">
+                    <div class="force-title">
+                        <i class="fas fa-long-arrow-alt-right" style="color: ${randomColor};"></i>
+                        Force F${forceCount}
+                    </div>
+                    <button class="remove-force" data-force="${forceId}" title="Remove Force">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label class="input-label" for="${forceId}-magnitude">
+                            <i class="fas fa-weight-hanging"></i> Magnitude (N)
+                        </label>
+                        <input type="number" id="${forceId}-magnitude" value="${(forceCount * 10).toFixed(0)}" step="0.1" min="0">
+                    </div>
+                    <div class="input-field">
+                        <label class="input-label" for="${forceId}-angle">
+                            <i class="fas fa-compass"></i> Angle (°)
+                        </label>
+                        <input type="number" id="${forceId}-angle" value="${(forceCount * 45) % 360}" step="1" min="0" max="360">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div class="input-field">
+                        <label class="input-label" for="${forceId}-x">
+                            <i class="fas fa-map-marker-alt"></i> Point X (m)
+                        </label>
+                        <input type="number" id="${forceId}-x" value="${forceCount}" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label class="input-label" for="${forceId}-y">
+                            <i class="fas fa-map-marker-alt"></i> Point Y (m)
+                        </label>
+                        <input type="number" id="${forceId}-y" value="${forceCount % 3}" step="0.1">
+                    </div>
+                </div>
+            `;
+            
+            forcesContainer.appendChild(forceCard);
+            
+            // Scroll to the new force card
+            forceCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            
+            // Add remove button event listener
+            const removeBtn = forceCard.querySelector('.remove-force');
+            removeBtn.addEventListener('click', function() {
+                if (forceCount > 1) {
+                    forceCard.style.animation = 'fadeIn 0.3s ease reverse';
+                    setTimeout(() => {
+                        forceCard.remove();
+                        forceCount--;
+                        updateForceTitles();
+                        updateStatus('Force removed', 'You can add more forces or calculate equilibrium', 'info');
+                    }, 300);
+                } else {
+                    updateStatus('Cannot remove', 'At least one force is required!', 'error');
+                }
+            });
+            
+            // Update input event listeners for real-time validation
+            const inputs = forceCard.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    this.style.borderColor = '#4361ee';
+                    setTimeout(() => {
+                        this.style.borderColor = '';
+                    }, 1000);
+                });
+            });
+            
+            updateStatus('Force added', `Force F${forceCount} has been added. Configure its properties.`, 'success');
+        }
+        
+        // Update all force titles
+        function updateForceTitles() {
+            const forceCards = document.querySelectorAll('.force-card');
+            forceCards.forEach((card, index) => {
+                const title = card.querySelector('.force-title');
+                title.innerHTML = `<i class="fas fa-long-arrow-alt-right" style="color: #4361ee;"></i> Force F${index + 1}`;
+            });
+        }
+        
+        // Update status display
+        function updateStatus(title, message, type) {
+            systemStatusEl.textContent = title;
+            systemMessageEl.textContent = message;
+            
+            // Update status box style based on type
+            statusBox.style.borderColor = type === 'success' ? '#2ecc71' : 
+                                         type === 'error' ? '#e74c3c' : 
+                                         type === 'info' ? '#3498db' : '#f39c12';
+            
+            // Update status icon
+            const statusIcon = statusBox.querySelector('.status-icon');
+            statusIcon.style.background = type === 'success' ? '#2ecc71' : 
+                                         type === 'error' ? '#e74c3c' : 
+                                         type === 'info' ? '#3498db' : '#f39c12';
+            
+            statusIcon.innerHTML = type === 'success' ? '<i class="fas fa-check"></i>' :
+                                  type === 'error' ? '<i class="fas fa-exclamation-triangle"></i>' :
+                                  type === 'info' ? '<i class="fas fa-info-circle"></i>' : '<i class="fas fa-calculator"></i>';
+        }
+        
+        // Calculate equilibrium
+        function calculateEquilibrium() {
+            // Get pivot point coordinates
+            const pivotX = parseFloat(pivotXInput.value) || 0;
+            const pivotY = parseFloat(pivotYInput.value) || 0;
+            
+            // Initialize sums
+            let sumFx = 0;
+            let sumFy = 0;
+            let sumM = 0;
+            
+            // Get all forces
+            const forceCards = document.querySelectorAll('.force-card');
+            
+            // Check if there are any forces
+            if (forceCards.length === 0) {
+                updateStatus('No Forces', 'Please add at least one force!', 'error');
+                return;
+            }
+            
+            let forcesData = [];
+            let equationsFx = [];
+            let equationsFy = [];
+            let equationsM = [];
+            
+            // Calculate components and moments for each force
+            forceCards.forEach((card, index) => {
+                const forceNum = index + 1;
+                
+                // Get input values
+                const magnitudeInput = card.querySelector(`#force${forceNum}-magnitude`);
+                const angleInput = card.querySelector(`#force${forceNum}-angle`);
+                const xInput = card.querySelector(`#force${forceNum}-x`);
+                const yInput = card.querySelector(`#force${forceNum}-y`);
+                
+                // Validate inputs
+                if (!magnitudeInput.value || parseFloat(magnitudeInput.value) <= 0) {
+                    magnitudeInput.style.borderColor = '#e74c3c';
+                    updateStatus('Invalid Input', `Force F${forceNum}: Magnitude must be positive`, 'error');
+                    return;
+                }
+                
+                const magnitude = parseFloat(magnitudeInput.value);
+                const angle = parseFloat(angleInput.value) || 0;
+                const x = parseFloat(xInput.value) || 0;
+                const y = parseFloat(yInput.value) || 0;
+                
+                // Convert angle to radians
+                const angleRad = angle * Math.PI / 180;
+                
+                // Calculate force components
+                const fx = magnitude * Math.cos(angleRad);
+                const fy = magnitude * Math.sin(angleRad);
+                
+                // Calculate moment arm (relative to pivot)
+                const dx = x - pivotX;
+                const dy = y - pivotY;
+                
+                // Calculate moment (counterclockwise positive)
+                const moment = fx * dy - fy * dx;
+                
+                // Add to sums
+                sumFx += fx;
+                sumFy += fy;
+                sumM += moment;
+                
+                // Store force data
+                forcesData.push({
+                    magnitude, angle, x, y, fx, fy, moment
+                });
+                
+                // Build equation strings
+                const fxSign = fx >= 0 ? '+' : '-';
+                const fySign = fy >= 0 ? '+' : '-';
+                const momentSign = moment >= 0 ? '+' : '-';
+                
+                equationsFx.push(`${fxSign} ${Math.abs(fx).toFixed(2)}`);
+                equationsFy.push(`${fySign} ${Math.abs(fy).toFixed(2)}`);
+                equationsM.push(`${momentSign} ${Math.abs(moment).toFixed(2)}`);
+            });
+            
+            // Calculate reaction forces (assumed at pivot point)
+            const Rx = -sumFx;
+            const Ry = -sumFy;
+            
+            // Check moment balance (with tolerance)
+            const isMomentBalanced = Math.abs(sumM) < 0.01;
+            
+            // Display equilibrium equations
+            equationFxEl.querySelector('.equation-content').innerHTML = 
+                `∑Fx = 0: ${equationsFx.join(' ')} + Rx = 0`;
+            equationFyEl.querySelector('.equation-content').innerHTML = 
+                `∑Fy = 0: ${equationsFy.join(' ')} + Ry = 0`;
+            equationMEl.querySelector('.equation-content').innerHTML = 
+                `∑M = 0: ${equationsM.join(' ')} = <strong>${sumM.toFixed(2)} N·m</strong>`;
+            
+            // Highlight equations
+            [equationFxEl, equationFyEl, equationMEl].forEach(eq => {
+                eq.classList.add('highlight');
+                setTimeout(() => eq.classList.remove('highlight'), 1000);
+            });
+            
+            // Display calculation results
+            resultRxEl.textContent = `${Rx.toFixed(2)} N`;
+            resultRyEl.textContent = `${Ry.toFixed(2)} N`;
+            
+            // Update result colors based on value
+            resultRxEl.style.color = Math.abs(Rx) > 0.01 ? '#4361ee' : '#2ecc71';
+            resultRyEl.style.color = Math.abs(Ry) > 0.01 ? '#4361ee' : '#2ecc71';
+            
+            // Update system status
+            if (isMomentBalanced) {
+                updateStatus('System Balanced ✓', 'All equilibrium conditions are satisfied', 'success');
+                balanceIndicator.innerHTML = '<i class="fas fa-balance-scale" style="color: #2ecc71;"></i>';
+                statusBox.style.borderColor = '#2ecc71';
+                statusBox.style.background = 'linear-gradient(to right, #f0fff4, #f8fff0)';
+            } else {
+                updateStatus('Moment Not Balanced!', `Net moment: ${sumM.toFixed(2)} N·m (should be 0)`, 'error');
+                balanceIndicator.innerHTML = '<i class="fas fa-balance-scale" style="color: #e74c3c;"></i>';
+                statusBox.style.borderColor = '#e74c3c';
+                statusBox.style.background = 'linear-gradient(to right, #fff0f0, #fff8f8)';
+            }
+            
+            // Add visual feedback to pivot inputs
+            pivotXInput.style.borderColor = '#2ecc71';
+            pivotYInput.style.borderColor = '#2ecc71';
+            setTimeout(() => {
+                pivotXInput.style.borderColor = '';
+                pivotYInput.style.borderColor = '';
+            }, 1500);
+        }
+        
+        // Reset all inputs
+        function resetAll() {
+            // Remove all force cards with animation
+            const forceCards = document.querySelectorAll('.force-card');
+            forceCards.forEach((card, index) => {
+                card.style.animation = 'fadeIn 0.3s ease reverse';
+                setTimeout(() => {
+                    card.remove();
+                }, index * 100);
+            });
+            
+            // Reset counters
+            forceCount = 0;
+            
+            // Reset pivot point
+            pivotXInput.value = 0;
+            pivotYInput.value = 0;
+            
+            // Reset result display
+            equationFxEl.querySelector('.equation-content').textContent = '∑Fx = 0: Waiting for calculation...';
+            equationFyEl.querySelector('.equation-content').textContent = '∑Fy = 0: Waiting for calculation...';
+            equationMEl.querySelector('.equation-content').textContent = '∑M = 0: Waiting for calculation...';
+            
+            resultRxEl.textContent = '0.00 N';
+            resultRyEl.textContent = '0.00 N';
+            resultRxEl.style.color = '#4361ee';
+            resultRyEl.style.color = '#4361ee';
+            
+            // Update status
+            updateStatus('Calculator Reset', 'All inputs have been cleared. Add new forces.', 'info');
+            balanceIndicator.innerHTML = '<i class="fas fa-balance-scale" style="color: #ccc;"></i>';
+            statusBox.style.borderColor = '#3498db';
+            statusBox.style.background = 'linear-gradient(to right, #f0fff4, #f8fff0)';
+            
+            // Add a new force after reset
+            setTimeout(() => {
+                addNewForce();
+            }, 500);
+        }
+        
+        // Add some example data on load
+        setTimeout(() => {
+            // Set initial status
+            updateStatus('Ready to Calculate', 'Add forces or use the default ones, then click Calculate Equilibrium', 'info');
+        }, 1000);
+    </script>
+</body>
+</html>
